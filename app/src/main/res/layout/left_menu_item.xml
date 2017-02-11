@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="20dp"
+    android:paddingTop="10dp"
+    android:background="#000">
+
+    <TextView
+        android:id="@+id/tv_left_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="26sp"
+        android:textColor="@color/left_menu_color_select"
+        android:drawableLeft="@drawable/left_menu_arrow_elect"
+        android:drawablePadding="3dp"
+        android:text="新闻"/>
+</LinearLayout>
