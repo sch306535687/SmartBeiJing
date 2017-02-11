@@ -1,1 +1,1 @@
-include ':app',':sliding_library'
+include ':app',':sliding_library',':indicator_library'

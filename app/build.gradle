@@ -26,7 +26,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.android.support:support-v4:25.0.1'
     compile project(':sliding_library')
+    compile project(':indicator_library')
     compile files('libs/xUtils-2.6.14.jar')
     compile files('libs/gson-2.3.1.jar')
-    compile 'com.viewpagerindicator:library:2.4.1'
 }
