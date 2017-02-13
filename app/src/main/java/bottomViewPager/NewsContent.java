@@ -76,12 +76,8 @@ public class NewsContent extends Base_Activity {
                 Left_Interact left_interact = new Left_Interact(mActivity);
                 leftLists.add(left_interact);
 
-                //初始化新闻
                 MainActivity mainUI = (MainActivity) mActivity;
-                fl_frameLayout.removeAllViews();//添加界面之前先去掉子类控件
-                fl_frameLayout.addView(left_news.initView());
-                left_news.initData();
-
+                initNews();//初始化新闻
                 mainUI.left_menu_fragment.setNewsData(newsMenuData.data);
             }
 
@@ -95,10 +91,21 @@ public class NewsContent extends Base_Activity {
     //侧边栏点击后执行此方法切换页面
 
     public void setItemContent(int position) {
-        Left_Menu_Base_Activity left_menu_base_activity = leftLists.get(position);
-        fl_frameLayout.removeAllViews();//添加界面之前先去掉子类控件
-        fl_frameLayout.addView(left_menu_base_activity.mView);
-        left_menu_base_activity.initData();
+        if(position==0){
+            initNews();//初始化新闻
+        }else {
+            Left_Menu_Base_Activity left_menu_base_activity = leftLists.get(position);
+            fl_frameLayout.removeAllViews();//添加界面之前先去掉子类控件
+            fl_frameLayout.addView(left_menu_base_activity.mView);
+        }
+
         title.setText(newsMenuData.data.get(position).title);//设置title
+    }
+
+    public void initNews(){
+        //初始化新闻
+        fl_frameLayout.removeAllViews();//添加界面之前先去掉子类控件
+        fl_frameLayout.addView(left_news.initView());
+        left_news.initData();
     }
 }

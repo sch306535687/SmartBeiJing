@@ -22,7 +22,7 @@ import sun.ch.smartbeijing.R;
  */
 public class Left_News extends Left_Menu_Base_Activity {
 
-    public static ViewPager newscenter_viewpager;
+    public  ViewPager newscenter_viewpager;
     public ArrayList<NewsMenuData.NewsTabData> mData;
     private ArrayList<NewsCenter> viewList;
     private MyAdapter myAdapter;
@@ -31,7 +31,6 @@ public class Left_News extends Left_Menu_Base_Activity {
 
     public Left_News(Activity activity, ArrayList<NewsMenuData.NewsTabData> children) {
         super(activity);
-        viewList = new ArrayList<NewsCenter>();
         mData = children;
     }
 
@@ -45,12 +44,15 @@ public class Left_News extends Left_Menu_Base_Activity {
 
     @Override
     public void initData() {
+
+        viewList = new ArrayList<NewsCenter>();
         for (NewsMenuData.NewsTabData n : mData) {
             NewsCenter newsCenter = new NewsCenter(mActivity);
             viewList.add(newsCenter);
         }
         myAdapter = new MyAdapter();
         newscenter_viewpager.setAdapter(myAdapter);
+        mTabPageIndicator.setVisibility(View.VISIBLE);
         mTabPageIndicator.setViewPager(newscenter_viewpager);
         mTabPageIndicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -97,7 +99,6 @@ public class Left_News extends Left_Menu_Base_Activity {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            System.out.println("rrr");
             NewsCenter newsCenter = viewList.get(position);
             newsCenter.textView.setText(mData.get(position).title);
             container.addView(newsCenter.mView);
