@@ -46,8 +46,8 @@ public class Left_News extends Left_Menu_Base_Activity {
     public void initData() {
 
         viewList = new ArrayList<NewsCenter>();
-        for (NewsMenuData.NewsTabData n : mData) {
-            NewsCenter newsCenter = new NewsCenter(mActivity);
+        for (NewsMenuData.NewsTabData data : mData) {
+            NewsCenter newsCenter = new NewsCenter(mActivity,data);
             viewList.add(newsCenter);
         }
         myAdapter = new MyAdapter();
@@ -100,8 +100,8 @@ public class Left_News extends Left_Menu_Base_Activity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             NewsCenter newsCenter = viewList.get(position);
-            newsCenter.textView.setText(mData.get(position).title);
             container.addView(newsCenter.mView);
+            newsCenter.initData();
             return newsCenter.mView;
         }
 
