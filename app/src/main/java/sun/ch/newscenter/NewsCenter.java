@@ -22,7 +22,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
     @Override
     public View initView() {
         textView = new TextView(mActivity);
-        textView.setText("新闻中心");
+        textView.setText("新闻中心详情页");
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
         textView.setLayoutParams(params);
         textView.setGravity(Gravity.CENTER);
