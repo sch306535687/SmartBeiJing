@@ -58,7 +58,6 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
         view = View.inflate(mActivity, R.layout.activity_news_list, null);
         news_listview = (ListView) view.findViewById(R.id.news_listview);
-
         //添加布局头
         header = View.inflate(mActivity, R.layout.listview_header, null);
         news_listview.addHeaderView(header);

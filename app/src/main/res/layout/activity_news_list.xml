@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ListView
+    <sun.ch.view.CustomRefreshListView
         android:id="@+id/news_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
