@@ -127,6 +127,7 @@ public class CustomRefreshListView extends ListView {
                 pb.setVisibility(VISIBLE);
                 arrow.clearAnimation();
                 arrow.setVisibility(INVISIBLE);
+                //SystemClock.sleep(5000);
                 mOnRefreshData.refreshData();//调用刷新数据
                 break;
         }
@@ -140,5 +141,14 @@ public class CustomRefreshListView extends ListView {
     //定义外部刷新接口
     public interface OnRefreshData{
         public void refreshData();
+    }
+
+    //定义一个结束刷新方法供外部使用
+    public void refreshComplete(){
+        refreshView.setPadding(0, -measuredHeight, 0, 0);//重新设置布局padding值
+        title.setText("向下刷新");
+        arrow.setVisibility(VISIBLE);
+        pb.setVisibility(INVISIBLE);
+        refreshState = 0;
     }
 }

@@ -9,8 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lidroid.xutils.BitmapUtils;
@@ -28,6 +28,7 @@ import sun.ch.domain.NewsListData;
 import sun.ch.domain.NewsMenuData;
 import sun.ch.global.GlobalData;
 import sun.ch.smartbeijing.R;
+import sun.ch.view.CustomRefreshListView;
 
 /**
  * Created by sunch on 2017/2/10.
@@ -36,7 +37,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
     public View view;
     private ViewPager news_viewpager;
-    private ListView news_listview;
+    private CustomRefreshListView news_listview;
 
     public NewsMenuData.NewsTabData mData;
     private String url;
@@ -57,10 +58,17 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         sharedPreferences = mActivity.getSharedPreferences("cache", Context.MODE_PRIVATE);
 
         view = View.inflate(mActivity, R.layout.activity_news_list, null);
-        news_listview = (ListView) view.findViewById(R.id.news_listview);
+        news_listview = (CustomRefreshListView) view.findViewById(R.id.news_listview);
         //添加布局头
         header = View.inflate(mActivity, R.layout.listview_header, null);
         news_listview.addHeaderView(header);
+        news_listview.setOnRefreshData(new CustomRefreshListView.OnRefreshData() {
+            @Override
+            public void refreshData() {
+                System.out.println("正在刷新");
+                getDataFromServer(url);//从新获取网络数据
+            }
+        });
 
         news_viewpager = (ViewPager) header.findViewById(R.id.news_viewpager);
         indicator = (CirclePageIndicator) header.findViewById(R.id.indicator);
@@ -97,12 +105,14 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
                 //初始化数据
                 initNewsData(result);
-
+                news_listview.refreshComplete();//收起下拉刷新控件
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
-
+                news_listview.refreshComplete();//收起下拉刷新控件
+                e.printStackTrace();
+                Toast.makeText(mActivity,s,Toast.LENGTH_SHORT).show();
             }
         });
     }
