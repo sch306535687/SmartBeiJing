@@ -1,6 +1,8 @@
 package sun.ch.newscenter;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -42,6 +44,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
     private CirclePageIndicator indicator;
     private TextView tv_title;
     private View header;
+    private SharedPreferences sharedPreferences;
 
     public NewsCenter(Activity activity, NewsMenuData.NewsTabData data) {
         super(activity);
@@ -50,11 +53,14 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
     @Override
     public View initView() {
+
+        sharedPreferences = mActivity.getSharedPreferences("cache", Context.MODE_PRIVATE);
+
         view = View.inflate(mActivity, R.layout.activity_news_list, null);
         news_listview = (ListView) view.findViewById(R.id.news_listview);
 
         //添加布局头
-        header = View.inflate(mActivity, R.layout.listview_header,null);
+        header = View.inflate(mActivity, R.layout.listview_header, null);
         news_listview.addHeaderView(header);
 
         news_viewpager = (ViewPager) header.findViewById(R.id.news_viewpager);
@@ -66,23 +72,33 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
     @Override
     public void initData() {
-        url = GlobalData.bseUrl+mData.url;
+
+        url = GlobalData.bseUrl + mData.url;
+
+        String topnews_list_cache = sharedPreferences.getString("topnews_list_cache", null);
+        if(topnews_list_cache!=null){
+            System.out.println("从缓存获取数据");
+            initNewsData(topnews_list_cache);
+        }
+
         getDataFromServer(url);
+
     }
 
     //从服务器获取json数据,并封装成对象
-    public void  getDataFromServer(String url){
+    public void getDataFromServer(String url) {
         HttpUtils httpUtils = new HttpUtils();
         httpUtils.send(HttpRequest.HttpMethod.GET, url, new RequestCallBack<String>() {
 
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
-                Gson gson = new Gson();
-                NewsListData newsListData = gson.fromJson(result, NewsListData.class);
-                topnews = newsListData.data.topnews;
+                //缓存数据
+                sharedPreferences.edit().putString("topnews_list_cache", result).commit();
+
                 //初始化数据
-                initNewsData();
+                initNewsData(result);
+
             }
 
             @Override
@@ -95,13 +111,20 @@ public class NewsCenter extends Left_Menu_Base_Activity {
     /**
      * 初始化数据
      */
-    public void initNewsData(){
+    public void initNewsData(String result) {
+
+        Gson gson = new Gson();
+        NewsListData newsListData = gson.fromJson(result, NewsListData.class);
+        topnews = newsListData.data.topnews;
 
         tv_title.setText(topnews.get(0).title);//初始化标题
 
         //viewpager数据设置
         MyNewsPagerAdapter myNewsPagerAdapter = new MyNewsPagerAdapter();
-        news_viewpager.setAdapter(myNewsPagerAdapter);
+
+        if(topnews!=null){
+            news_viewpager.setAdapter(myNewsPagerAdapter);
+        }
 
         indicator.setViewPager(news_viewpager);
         indicator.setSnap(true);
@@ -127,16 +150,17 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
         //listview数据设置
         MyNewsListViewAdapter myNewsListViewAdapter = new MyNewsListViewAdapter();
-        news_listview.setAdapter(myNewsListViewAdapter);
-
+        if(topnews!=null){
+            news_listview.setAdapter(myNewsListViewAdapter);
+        }
     }
 
-    public class MyNewsPagerAdapter extends PagerAdapter{
+    public class MyNewsPagerAdapter extends PagerAdapter {
 
         public BitmapUtils bitmapUtils;
 
-        public MyNewsPagerAdapter(){
-           bitmapUtils = new BitmapUtils(mActivity);
+        public MyNewsPagerAdapter() {
+            bitmapUtils = new BitmapUtils(mActivity);
             bitmapUtils.configDefaultLoadingImage(R.mipmap.pic_item_list_default);
         }
 
@@ -154,7 +178,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         public Object instantiateItem(ViewGroup container, int position) {
             ImageView imageView = new ImageView(mActivity);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            bitmapUtils.display(imageView,topnews.get(position).topimage);
+            bitmapUtils.display(imageView, topnews.get(position).topimage);
             container.addView(imageView);
             return imageView;
         }
@@ -165,11 +189,11 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         }
     }
 
-    public class MyNewsListViewAdapter extends BaseAdapter{
+    public class MyNewsListViewAdapter extends BaseAdapter {
 
         public BitmapUtils bitmapUtils;
 
-        public MyNewsListViewAdapter(){
+        public MyNewsListViewAdapter() {
             bitmapUtils = new BitmapUtils(mActivity);
             bitmapUtils.configDefaultLoadingImage(R.mipmap.pic_item_list_default);
         }
@@ -191,29 +215,29 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-
-            if(view == null){
-                view = View.inflate(mActivity,R.layout.news_list_item,null);
-                ViewHolder viewHolder = new ViewHolder();
+            ViewHolder viewHolder;
+            if (view == null) {
+                view = View.inflate(mActivity, R.layout.news_list_item, null);
+                viewHolder = new ViewHolder();
                 viewHolder.img = (ImageView) view.findViewById(R.id.iv_icon);
                 viewHolder.title = (TextView) view.findViewById(R.id.tv_title);
                 viewHolder.date = (TextView) view.findViewById(R.id.tv_date);
-
                 view.setTag(viewHolder);
-            }else {
-                NewsListData.TopNews news = getItem(i);
-                ViewHolder viewHolder = (ViewHolder) view.getTag();
-
-                bitmapUtils.display(viewHolder.img,news.topimage);
-                viewHolder.title.setText(news.title);
-                viewHolder.date.setText(news.pubdate);
+            } else {
+                viewHolder = (ViewHolder) view.getTag();
             }
+
+            NewsListData.TopNews news = getItem(i);
+
+            bitmapUtils.display(viewHolder.img, news.topimage);
+            viewHolder.title.setText(news.title);
+            viewHolder.date.setText(news.pubdate);
 
             return view;
         }
     }
 
-    public class ViewHolder{
+    public class ViewHolder {
         public ImageView img;
         public TextView title;
         public TextView date;
