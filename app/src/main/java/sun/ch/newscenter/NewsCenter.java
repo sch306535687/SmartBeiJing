@@ -7,6 +7,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,11 +42,17 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
     public NewsMenuData.NewsTabData mData;
     private String url;
-    private ArrayList<NewsListData.TopNews> topnews;
+    private String moreUrl;
     private CirclePageIndicator indicator;
     private TextView tv_title;
     private View header;
     private SharedPreferences sharedPreferences;
+    private ArrayList<NewsListData.News> news;
+    private NewsListData newsListData;
+
+    private boolean isUpdateMore;
+    private MyNewsPagerAdapter myNewsPagerAdapter;
+    private MyNewsListViewAdapter myNewsListViewAdapter;
 
     public NewsCenter(Activity activity, NewsMenuData.NewsTabData data) {
         super(activity);
@@ -62,11 +69,26 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         //添加布局头
         header = View.inflate(mActivity, R.layout.listview_header, null);
         news_listview.addHeaderView(header);
+
+        news_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+            }
+        });
+
         news_listview.setOnRefreshData(new CustomRefreshListView.OnRefreshData() {
             @Override
             public void refreshData() {
                 System.out.println("正在刷新");
                 getDataFromServer(url);//从新获取网络数据
+            }
+
+            @Override
+            public void refreshMoreData() {
+                isUpdateMore = true;//切换为加载更多数据状态
+                //加载更多数据
+                getDataFromServer(moreUrl);
             }
         });
 
@@ -83,7 +105,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         url = GlobalData.bseUrl + mData.url;
 
         String topnews_list_cache = sharedPreferences.getString("topnews_list_cache", null);
-        if(topnews_list_cache!=null){
+        if (topnews_list_cache != null) {
             System.out.println("从缓存获取数据");
             initNewsData(topnews_list_cache);
         }
@@ -103,16 +125,27 @@ public class NewsCenter extends Left_Menu_Base_Activity {
                 //缓存数据
                 sharedPreferences.edit().putString("topnews_list_cache", result).commit();
 
-                //初始化数据
-                initNewsData(result);
+                if (!isUpdateMore) {
+                    //初始化数据
+                    initNewsData(result);
+
+                }else {
+                    Gson gson = new Gson();
+                    NewsListData newsListData = gson.fromJson(result, NewsListData.class);
+                    ArrayList<NewsListData.News> moreNews = newsListData.data.news;
+                    news.addAll(moreNews);
+                    myNewsListViewAdapter.notifyDataSetChanged();
+                }
+
                 news_listview.refreshComplete();//收起下拉刷新控件
+
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
                 news_listview.refreshComplete();//收起下拉刷新控件
                 e.printStackTrace();
-                Toast.makeText(mActivity,s,Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity, s, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -123,15 +156,16 @@ public class NewsCenter extends Left_Menu_Base_Activity {
     public void initNewsData(String result) {
 
         Gson gson = new Gson();
-        NewsListData newsListData = gson.fromJson(result, NewsListData.class);
-        topnews = newsListData.data.topnews;
+        newsListData = gson.fromJson(result, NewsListData.class);
+        news = newsListData.data.news;
+        String more = newsListData.data.more;
+        moreUrl = GlobalData.bseUrl + more;//获取加载更多请求地址
 
-        tv_title.setText(topnews.get(0).title);//初始化标题
+        tv_title.setText(news.get(0).title);//初始化标题
 
-        //viewpager数据设置
-        MyNewsPagerAdapter myNewsPagerAdapter = new MyNewsPagerAdapter();
-
-        if(topnews!=null){
+        if (news != null) {
+            //viewpager数据设置
+            myNewsPagerAdapter = new MyNewsPagerAdapter();
             news_viewpager.setAdapter(myNewsPagerAdapter);
         }
 
@@ -148,7 +182,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
             @Override
             public void onPageSelected(int position) {
                 //设置标题
-                tv_title.setText(topnews.get(position).title);
+                tv_title.setText(news.get(position).title);
             }
 
             @Override
@@ -158,10 +192,12 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         });
 
         //listview数据设置
-        MyNewsListViewAdapter myNewsListViewAdapter = new MyNewsListViewAdapter();
-        if(topnews!=null){
+        myNewsListViewAdapter = new MyNewsListViewAdapter();
+        if (news != null) {
             news_listview.setAdapter(myNewsListViewAdapter);
         }
+
+
     }
 
     public class MyNewsPagerAdapter extends PagerAdapter {
@@ -175,7 +211,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
         @Override
         public int getCount() {
-            return topnews.size();
+            return news.size();
         }
 
         @Override
@@ -187,7 +223,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         public Object instantiateItem(ViewGroup container, int position) {
             ImageView imageView = new ImageView(mActivity);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            bitmapUtils.display(imageView, topnews.get(position).topimage);
+            bitmapUtils.display(imageView, news.get(position).listimage);
             container.addView(imageView);
             return imageView;
         }
@@ -209,12 +245,12 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
         @Override
         public int getCount() {
-            return topnews.size();
+            return news.size();
         }
 
         @Override
-        public NewsListData.TopNews getItem(int i) {
-            return topnews.get(i);
+        public NewsListData.News getItem(int i) {
+            return news.get(i);
         }
 
         @Override
@@ -236,9 +272,9 @@ public class NewsCenter extends Left_Menu_Base_Activity {
                 viewHolder = (ViewHolder) view.getTag();
             }
 
-            NewsListData.TopNews news = getItem(i);
+            NewsListData.News news = getItem(i);
 
-            bitmapUtils.display(viewHolder.img, news.topimage);
+            bitmapUtils.display(viewHolder.img, news.listimage);
             viewHolder.title.setText(news.title);
             viewHolder.date.setText(news.pubdate);
 
