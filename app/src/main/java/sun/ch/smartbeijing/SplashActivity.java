@@ -13,6 +13,8 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.RelativeLayout;
 
+import cn.sharesdk.framework.ShareSDK;
+
 public class SplashActivity extends Activity {
 
     private RelativeLayout splash;
@@ -24,7 +26,7 @@ public class SplashActivity extends Activity {
         setContentView(R.layout.activity_splash);
         splash = (RelativeLayout) findViewById(R.id.splash);
         sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
-
+        ShareSDK.initSDK(this);
         //旋转动画
         RotateAnimation rotateAnimation = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotateAnimation.setDuration(1000);

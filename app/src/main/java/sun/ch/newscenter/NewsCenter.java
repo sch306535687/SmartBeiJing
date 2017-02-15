@@ -5,8 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -56,6 +59,9 @@ public class NewsCenter extends Left_Menu_Base_Activity {
     private boolean isUpdateMore;
     private MyNewsPagerAdapter myNewsPagerAdapter;
     private MyNewsListViewAdapter myNewsListViewAdapter;
+    private ArrayList<NewsListData.TopNews> topnews;
+
+    private Handler mHandler = null;
 
     public NewsCenter(Activity activity, NewsMenuData.NewsTabData data) {
         super(activity);
@@ -182,16 +188,51 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         Gson gson = new Gson();
         newsListData = gson.fromJson(result, NewsListData.class);
         news = newsListData.data.news;
+        topnews = newsListData.data.topnews;
         String more = newsListData.data.more;
         moreUrl = GlobalData.bseUrl + more;//获取加载更多请求地址
 
         tv_title.setText(news.get(0).title);//初始化标题
 
-        if (news != null) {
+        if (topnews != null) {
             //viewpager数据设置
             myNewsPagerAdapter = new MyNewsPagerAdapter();
             news_viewpager.setAdapter(myNewsPagerAdapter);
         }
+
+        if(mHandler == null){
+            mHandler = new Handler(){
+                @Override
+                public void handleMessage(Message msg) {
+                    int currentItem = news_viewpager.getCurrentItem();
+                    if(currentItem < news_viewpager.getChildCount()){
+                        currentItem ++;
+                    }else {
+                        currentItem = 0;
+                    }
+
+                    news_viewpager.setCurrentItem(currentItem);
+                    mHandler.sendEmptyMessageDelayed(0,3000);
+                }
+            };
+        }
+        mHandler.sendEmptyMessageDelayed(0,3000);
+
+        news_viewpager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()){
+                    case MotionEvent.ACTION_DOWN:
+                        mHandler.removeCallbacksAndMessages(null);
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP:
+                        mHandler.sendEmptyMessageDelayed(0,3000);
+                        break;
+                }
+                return false;
+            }
+        });
 
         indicator.setViewPager(news_viewpager);
         indicator.setSnap(true);
@@ -206,7 +247,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
             @Override
             public void onPageSelected(int position) {
                 //设置标题
-                tv_title.setText(news.get(position).title);
+                tv_title.setText(topnews.get(position).title);
             }
 
             @Override
@@ -235,7 +276,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
 
         @Override
         public int getCount() {
-            return news.size();
+            return topnews.size();
         }
 
         @Override
@@ -247,7 +288,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         public Object instantiateItem(ViewGroup container, int position) {
             ImageView imageView = new ImageView(mActivity);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            bitmapUtils.display(imageView, news.get(position).listimage);
+            bitmapUtils.display(imageView, topnews.get(position).topimage);
             container.addView(imageView);
             return imageView;
         }
