@@ -2,6 +2,7 @@ package sun.ch.newscenter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v4.view.PagerAdapter;
@@ -29,6 +30,7 @@ import sun.ch.base.Left_Menu_Base_Activity;
 import sun.ch.domain.NewsListData;
 import sun.ch.domain.NewsMenuData;
 import sun.ch.global.GlobalData;
+import sun.ch.smartbeijing.NewsArticleActivity;
 import sun.ch.smartbeijing.R;
 import sun.ch.view.CustomRefreshListView;
 
@@ -103,10 +105,14 @@ public class NewsCenter extends Left_Menu_Base_Activity {
                 String news_id = sharedPreferences.getString("news_id", "");
 
                 if(!news_id.contains(newsId)){
+
                     news_id = news_id + newsId + ",";
                     sharedPreferences.edit().putString("news_id",news_id).commit();
                 }
-
+                String url = news.get(i).url;
+                Intent intent = new Intent(mActivity, NewsArticleActivity.class);
+                intent.putExtra("url",url);
+                mActivity.startActivity(intent);
             }
         });
 
