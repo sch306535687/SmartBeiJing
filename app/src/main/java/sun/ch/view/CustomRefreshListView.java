@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -18,7 +19,7 @@ import sun.ch.smartbeijing.R;
  * Created by Administrator on 2017/2/14.
  */
 
-public class CustomRefreshListView extends ListView implements AbsListView.OnScrollListener {
+public class CustomRefreshListView extends ListView implements AbsListView.OnScrollListener, AdapterView.OnItemClickListener {
 
     private static final int REFRESH_DOWN = 1;
     private static final int REFRESH_UP = 2;
@@ -65,6 +66,8 @@ public class CustomRefreshListView extends ListView implements AbsListView.OnScr
         headerView.measure(0, 0);
         headerHeight = headerView.getMeasuredHeight();
         headerView.setPadding(0, -headerHeight, 0, 0);
+
+
     }
 
     public void initFooterView() {
@@ -174,11 +177,26 @@ public class CustomRefreshListView extends ListView implements AbsListView.OnScr
 
     }
 
+    private OnItemClickListener mOnItemClickListener;
+    @Override
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mOnItemClickListener = listener;
+        super.setOnItemClickListener(this);//把父级的此事件交给当前控件监听
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        if(mOnItemClickListener != null){
+            mOnItemClickListener.onItemClick(adapterView,view,i-2,l);
+        }
+    }
+
     private OnRefreshData mOnRefreshData;
 
     public void setOnRefreshData(OnRefreshData onRefreshData) {
         mOnRefreshData = onRefreshData;
     }
+
 
     //定义外部刷新接口
     public interface OnRefreshData {
@@ -195,7 +213,6 @@ public class CustomRefreshListView extends ListView implements AbsListView.OnScr
         arrow.setVisibility(VISIBLE);
         pb.setVisibility(INVISIBLE);
         refreshState = 0;
-
         footerView.setPadding(0, -this.footerHeight, 0, 0);
     }
 }
