@@ -19,6 +19,7 @@ public abstract class Base_Activity {
     public TextView title;
     public FrameLayout fl_frameLayout;
     public ImageButton img_btn;
+    public ImageButton list_grid_btn;
 
     public Base_Activity(Activity activity){
         mActivity = activity;
@@ -34,6 +35,7 @@ public abstract class Base_Activity {
         title = (TextView) mRootView.findViewById(R.id.title);
         fl_frameLayout = (FrameLayout) mRootView.findViewById(R.id.fl_frameLayout);
         img_btn = (ImageButton) mRootView.findViewById(R.id.img_btn);
+        list_grid_btn = (ImageButton) mRootView.findViewById(R.id.list_grid_btn);
     }
 
     /**

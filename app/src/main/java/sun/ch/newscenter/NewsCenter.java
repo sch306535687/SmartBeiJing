@@ -132,7 +132,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
     @Override
     public void initData() {
 
-        url = GlobalData.bseUrl + mData.url;
+        url = GlobalData.baseUrl + mData.url;
 
         String topnews_list_cache = sharedPreferences.getString("topnews_list_cache", null);
         if (topnews_list_cache != null) {
@@ -190,7 +190,7 @@ public class NewsCenter extends Left_Menu_Base_Activity {
         news = newsListData.data.news;
         topnews = newsListData.data.topnews;
         String more = newsListData.data.more;
-        moreUrl = GlobalData.bseUrl + more;//获取加载更多请求地址
+        moreUrl = GlobalData.baseUrl + more;//获取加载更多请求地址
 
         tv_title.setText(news.get(0).title);//初始化标题
 

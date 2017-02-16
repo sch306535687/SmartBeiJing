@@ -30,10 +30,12 @@ public class NewsContent extends Base_Activity {
 
     private ArrayList<Left_Menu_Base_Activity> leftLists;//放置侧边栏四个对象
     public NewsMenuData newsMenuData;
+    private Left_Images left_images;
 
     public NewsContent(Activity activity) {
         super(activity);
     }
+
     public static Left_News left_news;
 
     @Override
@@ -57,7 +59,7 @@ public class NewsContent extends Base_Activity {
     }
 
     //从服务器获取json数据,并封装成对象
-    public void  getDataFromServer(String url){
+    public void getDataFromServer(String url) {
         HttpUtils httpUtils = new HttpUtils();
         httpUtils.send(HttpRequest.HttpMethod.GET, url, new RequestCallBack<String>() {
 
@@ -67,12 +69,15 @@ public class NewsContent extends Base_Activity {
                 Gson gson = new Gson();
                 newsMenuData = gson.fromJson(result, NewsMenuData.class);
 
-                left_news = new Left_News(mActivity,newsMenuData.data.get(0).children);
+                left_news = new Left_News(mActivity, newsMenuData.data.get(0).children);
                 leftLists.add(left_news);
+
                 Left_Type left_type = new Left_Type(mActivity);
                 leftLists.add(left_type);
-                Left_Images left_images = new Left_Images(mActivity);
+
+                left_images = new Left_Images(mActivity, list_grid_btn);
                 leftLists.add(left_images);
+
                 Left_Interact left_interact = new Left_Interact(mActivity);
                 leftLists.add(left_interact);
 
@@ -91,18 +96,25 @@ public class NewsContent extends Base_Activity {
     //侧边栏点击后执行此方法切换页面
 
     public void setItemContent(int position) {
-        if(position==0){
+        if (position == 0) {
             initNews();//初始化新闻
-        }else {
+        }  else {
             Left_Menu_Base_Activity left_menu_base_activity = leftLists.get(position);
             fl_frameLayout.removeAllViews();//添加界面之前先去掉子类控件
             fl_frameLayout.addView(left_menu_base_activity.mView);
+            left_menu_base_activity.initData();
+        }
+
+        if(position == 2){
+            list_grid_btn.setVisibility(View.VISIBLE);
+        }else {
+            list_grid_btn.setVisibility(View.INVISIBLE);
         }
 
         title.setText(newsMenuData.data.get(position).title);//设置title
     }
 
-    public void initNews(){
+    public void initNews() {
         //初始化新闻
         fl_frameLayout.removeAllViews();//添加界面之前先去掉子类控件
         fl_frameLayout.addView(left_news.initView());

@@ -26,6 +26,15 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
             android:src="@mipmap/img_menu"/>
+        <ImageButton
+            android:id="@+id/list_grid_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="@mipmap/icon_pic_grid_type"
+            android:visibility="invisible"/>
     </RelativeLayout>
     <FrameLayout
         android:id="@+id/fl_frameLayout"

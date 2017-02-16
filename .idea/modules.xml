@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SmartBeiJing.iml" filepath="$PROJECT_DIR$/SmartBeiJing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SmartBeijing.iml" filepath="$PROJECT_DIR$/SmartBeijing.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/indicator_library/indicator_library.iml" filepath="$PROJECT_DIR$/indicator_library/indicator_library.iml" />
       <module fileurl="file://$PROJECT_DIR$/sliding_library/sliding_library.iml" filepath="$PROJECT_DIR$/sliding_library/sliding_library.iml" />
